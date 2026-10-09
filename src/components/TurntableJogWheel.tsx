@@ -130,14 +130,20 @@ export const TurntableJogWheel: React.FC<TurntableJogWheelProps> = ({
         {/* Live Video Playing in Background Under Spinning Record Platter */}
         {videoId && (
           <div className="absolute inset-2 rounded-full overflow-hidden pointer-events-none z-0">
-            <iframe
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&enablejsapi=0&rel=0`}
-              title="Record Platter Video"
-              className={`w-[150%] h-[150%] -top-[25%] -left-[25%] absolute object-cover filter contrast-125 saturate-150 transition-opacity duration-500 pointer-events-none ${
-                isPlaying ? 'opacity-65 scale-105' : 'opacity-30'
-              }`}
-              allow="autoplay"
-            />
+            {isPlaying ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&enablejsapi=0&rel=0`}
+                title="Record Platter Video"
+                className="w-[150%] h-[150%] -top-[25%] -left-[25%] absolute object-cover filter contrast-125 saturate-150 opacity-65 scale-105 pointer-events-none"
+                allow="autoplay"
+              />
+            ) : thumbnailUrl ? (
+              <img
+                src={thumbnailUrl}
+                alt=""
+                className="w-full h-full object-cover opacity-35 scale-105 pointer-events-none filter contrast-125"
+              />
+            ) : null}
             {/* Smoked glass vignette overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/80 pointer-events-none" />
           </div>

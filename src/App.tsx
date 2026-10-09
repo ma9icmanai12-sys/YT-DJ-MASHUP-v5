@@ -631,7 +631,7 @@ export default function App() {
     requestAnimationFrame(tick);
   };
 
-  // Load Mashup Preset (Loads both Deck A and Deck B with preset matching)
+  // Load Mashup Preset (Loads both Deck A and Deck B with preset matching, stays paused)
   const handleLoadMashupPreset = (preset: MashupPreset) => {
     setEmbedErrorA(false);
     setEmbedErrorB(false);
@@ -644,7 +644,10 @@ export default function App() {
       isPlaying: false,
     }));
     cuePointARef.current = preset.deckA.suggestedCue || 0;
-    playerARef.current?.loadVideoById(preset.deckA.videoId, preset.deckA.suggestedCue || 0);
+    if (playerARef.current) {
+      playerARef.current.cueVideoById(preset.deckA.videoId, preset.deckA.suggestedCue || 0);
+      playerARef.current.pause();
+    }
 
     // Deck B
     setDeckB(prev => ({
@@ -655,12 +658,15 @@ export default function App() {
       isPlaying: false,
     }));
     cuePointBRef.current = preset.deckB.suggestedCue || 0;
-    playerBRef.current?.loadVideoById(preset.deckB.videoId, preset.deckB.suggestedCue || 0);
+    if (playerBRef.current) {
+      playerBRef.current.cueVideoById(preset.deckB.videoId, preset.deckB.suggestedCue || 0);
+      playerBRef.current.pause();
+    }
 
     logMixAction(`Loaded Mashup Preset: "${preset.title}"`);
   };
 
-  // Load individual track to specific deck
+  // Load individual track to specific deck (cues in standby waiting for PLAY button)
   const handleLoadTrackToDeck = (deckId: 'A' | 'B', track: DeckTrack) => {
     // Add to custom tracks if not already present
     setCustomTracks(prev => (prev.some(t => t.id === track.id) ? prev : [track, ...prev]));
@@ -677,18 +683,20 @@ export default function App() {
       cuePointARef.current = track.suggestedCue || 0;
 
       if (playerARef.current) {
-        playerARef.current.loadVideoById(track.videoId, track.suggestedCue || 0);
+        playerARef.current.cueVideoById(track.videoId, track.suggestedCue || 0);
+        playerARef.current.pause();
       } else {
         createYTPlayer('deck-a-player', track.videoId, {
           onReady: (wrapper) => {
             playerARef.current = wrapper;
             wrapper.setVolume(85);
+            wrapper.pause();
           },
           onStateChange: (state) => {
             if (state === 1) {
               setEmbedErrorA(false);
               setDeckA(prev => ({ ...prev, isPlaying: true }));
-            } else if (state === 2 || state === 0) {
+            } else if (state === 2 || state === 0 || state === 5) {
               setDeckA(prev => ({ ...prev, isPlaying: false }));
             }
           },
@@ -708,18 +716,20 @@ export default function App() {
       cuePointBRef.current = track.suggestedCue || 0;
 
       if (playerBRef.current) {
-        playerBRef.current.loadVideoById(track.videoId, track.suggestedCue || 0);
+        playerBRef.current.cueVideoById(track.videoId, track.suggestedCue || 0);
+        playerBRef.current.pause();
       } else {
         createYTPlayer('deck-b-player', track.videoId, {
           onReady: (wrapper) => {
             playerBRef.current = wrapper;
             wrapper.setVolume(85);
+            wrapper.pause();
           },
           onStateChange: (state) => {
             if (state === 1) {
               setEmbedErrorB(false);
               setDeckB(prev => ({ ...prev, isPlaying: true }));
-            } else if (state === 2 || state === 0) {
+            } else if (state === 2 || state === 0 || state === 5) {
               setDeckB(prev => ({ ...prev, isPlaying: false }));
             }
           },

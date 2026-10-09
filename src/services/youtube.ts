@@ -185,6 +185,11 @@ export async function createYTPlayer(
             } catch {
               rawPlayer.cueVideoById({ videoId: id, startSeconds });
             }
+            setTimeout(() => {
+              try {
+                if (rawPlayer.pauseVideo) rawPlayer.pauseVideo();
+              } catch {}
+            }, 30);
           }
         } catch (e) {
           console.warn('YT cueVideoById error', e);
